@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #define TRUE   1
 #define FALSE  0
@@ -15,13 +16,14 @@ int main(int argc, char *argv[])
 	if (argc == 1) {  /* no args; count standard input */
 		count(stdin, 0, "");
 	} else {
-		fname = argv[1];
+		opts = parse_args(argc, argv);
+		fname = argv[argc-1];
 		fp = fopen(fname, "r");
 		if (fp == NULL) {
 			printf("Error: can't open %s\n", fname); 
 			return 1;
 		} else {
-			count(fp, 0, fname);
+			count(fp, opts, fname);
 			fclose(fp);
 		}
 	}
@@ -30,7 +32,26 @@ int main(int argc, char *argv[])
 
 unsigned char parse_args(int argc, char *argv[])
 {
-	return 0;
+	int i;
+	unsigned char opts;
+
+	opts = 0;
+	for (i = 0; i < argc; i++) {
+		if (strcmp(argv[i], "-c") == 0) {
+			/* count bytes */
+			opts = opts | 1;
+		} else if (strcmp(argv[i], "-l") == 0) {
+			/* count lines */
+			opts = opts | 2;
+		} else if (strcmp(argv[i], "-w") == 0) {
+			/* count words */
+			opts = opts | 4;
+		} else if (strcmp(argv[i], "-c") == 0) {
+			/* count characters */
+			opts = opts | 8;
+		}
+	}
+	return opts;
 }
 
 void count(FILE *fp, unsigned char opts, char *fname)
@@ -55,5 +76,17 @@ void count(FILE *fp, unsigned char opts, char *fname)
 		}
 	}
 
-	printf("%ld\t%ld\t%ld\t%s\n", lines, words, bytes, fname);
+	if (opts == 0) {
+		printf("%ld\t%ld\t%ld\t%s\n", lines, words, bytes, fname);
+	} else {
+		if ((opts & 2) == 2)
+			printf("%ld\t", lines);
+		if ((opts & 4) == 4)
+			printf("%ld\t", words);
+		if ((opts & 1) == 1)
+			printf("%ld\t", bytes);
+		if ((opts & 8) == 8)
+			printf("%ld\t", chars);
+		printf("%s\n", fname);
+	}
 }
