@@ -1,3 +1,3 @@
-# word-count
+# count
 
-Clone of the classic Unix CLI tool written in C
+Clone of the Unix CLI tool `wc` written in C
