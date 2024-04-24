@@ -12,8 +12,11 @@ int main(int argc, char *argv[])
 		fp = fopen(argv[1], "r");
 		if (fp == NULL) {
 			printf("Error: can't open %s\n", argv[1]); 
-		} else
+			return 1;
+		} else {
 			count(fp);
+			fclose(fp);
+		}
 	}
 	return 0;
 }
@@ -21,9 +24,11 @@ int main(int argc, char *argv[])
 void count(FILE *fp)
 {
 	int c;
-	int words, lines, chars, bytes;
+	long words, lines, chars, bytes;
 
+	words = lines = chars = bytes = 0;
 	while ((c = getc(fp)) != EOF) {
-		putchar(c);
+		bytes ++;
 	}
+	printf("%ld\n", bytes);
 }
