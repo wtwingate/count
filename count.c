@@ -15,17 +15,24 @@ int main(int argc, char *argv[])
 
 	if (argc == 1) {  /* no args; count standard input */
 		count(stdin, 0, "");
+		return 0;
+	}
+
+	opts = parse_args(argc, argv);
+	
+	if (argv[argc-1][0] == '-') {  /* no file; only opts */
+		count(stdin, opts, "");
+		return 0;
+	}
+	
+	fname = argv[argc-1];
+	fp = fopen(fname, "r");
+	if (fp == NULL) {
+		printf("Error: can't open %s\n", fname); 
+		return 1;
 	} else {
-		opts = parse_args(argc, argv);
-		fname = argv[argc-1];
-		fp = fopen(fname, "r");
-		if (fp == NULL) {
-			printf("Error: can't open %s\n", fname); 
-			return 1;
-		} else {
-			count(fp, opts, fname);
-			fclose(fp);
-		}
+		count(fp, opts, fname);
+		fclose(fp);
 	}
 	return 0;
 }
@@ -64,10 +71,15 @@ void count(FILE *fp, unsigned char opts, char *fname)
 	words = lines = chars = bytes = 0;
 	while ((c = getc(fp)) != EOF) {
 		bytes ++;
-		chars ++;
-		if (c == '\n') {
+		/*
+		Info about encodings and how to handle UTF-8 multibyte chars in C
+		https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
+		https://dev.to/rdentato/utf-8-strings-in-c-1-3-42a4
+		*/
+		if ((c & 0xC0) != 0x80) /* check if current byte is part of a multibyte character */
+			chars++;
+		if (c == '\n')
 			lines++;
-		}
 		if (c == ' ' || c == '\t' || c == '\n') {
 			in_word = FALSE;
 		} else if (in_word == FALSE) {
