@@ -46,7 +46,7 @@ unsigned char parse_args(int argc, char *argv[])
 		} else if (strcmp(argv[i], "-w") == 0) {
 			/* count words */
 			opts = opts | 4;
-		} else if (strcmp(argv[i], "-c") == 0) {
+		} else if (strcmp(argv[i], "-m") == 0) {
 			/* count characters */
 			opts = opts | 8;
 		}
