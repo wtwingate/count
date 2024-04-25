@@ -46,16 +46,16 @@ unsigned char parse_args(int argc, char *argv[])
 	for (i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-c") == 0) {
 			/* count bytes */
-			opts = opts | 1;
+			opts = opts | 0x01;
 		} else if (strcmp(argv[i], "-l") == 0) {
 			/* count lines */
-			opts = opts | 2;
+			opts = opts | 0x02;
 		} else if (strcmp(argv[i], "-w") == 0) {
 			/* count words */
-			opts = opts | 4;
+			opts = opts | 0x04;
 		} else if (strcmp(argv[i], "-m") == 0) {
 			/* count characters */
-			opts = opts | 8;
+			opts = opts | 0x08;
 		}
 	}
 	return opts;
@@ -91,13 +91,13 @@ void count(FILE *fp, unsigned char opts, char *fname)
 	if (opts == 0) {
 		printf("%ld\t%ld\t%ld\t%s\n", lines, words, bytes, fname);
 	} else {
-		if ((opts & 2) == 2)
+		if ((opts & 0x02) == 0x02)
 			printf("%ld\t", lines);
-		if ((opts & 4) == 4)
+		if ((opts & 0x04) == 0x04)
 			printf("%ld\t", words);
-		if ((opts & 1) == 1)
+		if ((opts & 0x01) == 0x01)
 			printf("%ld\t", bytes);
-		if ((opts & 8) == 8)
+		if ((opts & 0x08) == 0x08)
 			printf("%ld\t", chars);
 		printf("%s\n", fname);
 	}
