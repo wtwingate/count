@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -39,11 +40,9 @@ int main(int argc, char *argv[])
 
 unsigned char parse_args(int argc, char *argv[])
 {
-	int i;
-	unsigned char opts;
+	unsigned char opts = 0;
 
-	opts = 0;
-	for (i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-c") == 0) {
 			/* count bytes */
 			opts = opts | 0x01;
@@ -63,24 +62,25 @@ unsigned char parse_args(int argc, char *argv[])
 
 void count(FILE *fp, unsigned char opts, char *fname)
 {
-	int c;
-	int in_word;
+	int c, in_word;
 	long words, lines, chars, bytes;
 
 	in_word = FALSE;
 	words = lines = chars = bytes = 0;
 	while ((c = getc(fp)) != EOF) {
-		bytes ++;
 		/*
-		Info about encodings and how to handle UTF-8 multibyte chars in C
+		Info about encodings and how to handle UTF-8 multibyte chars in C:
 		https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
 		https://dev.to/rdentato/utf-8-strings-in-c-1-3-42a4
 		*/
+		bytes ++;
 		if ((c & 0xC0) != 0x80) /* check if current byte is part of a multibyte character */
 			chars++;
+
 		if (c == '\n')
 			lines++;
-		if (c == ' ' || c == '\t' || c == '\n') {
+
+		if (isspace(c)) {
 			in_word = FALSE;
 		} else if (in_word == FALSE) {
 			in_word = TRUE;
@@ -89,8 +89,9 @@ void count(FILE *fp, unsigned char opts, char *fname)
 	}
 
 	if (opts == 0) {
-		printf("%ld\t%ld\t%ld\t%s\n", lines, words, bytes, fname);
+		printf("\t%ld\t%ld\t%ld\t%s\n", lines, words, bytes, fname);
 	} else {
+		printf("\t");
 		if ((opts & 0x02) == 0x02)
 			printf("%ld\t", lines);
 		if ((opts & 0x04) == 0x04)
